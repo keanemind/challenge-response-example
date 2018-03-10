@@ -315,14 +315,17 @@ if __name__ == "__main__":
                         for pgp_word in pgp_word_pair:
                             if word.lower() == pgp_word.lower():
                                 found = True
-                                response_bytes.append(index) # add word's value to bytearray
-                    # If it isn't, stop checking altogether and get a new response
+                                # add word's value to bytearray
+                                response_bytes.append(index)
+                    # If word isn't in PGP_WORDLIST, 
+                    # stop checking altogether and get a new response
                     if found is False:
                         break
 
         # Calculate correct answer by calculating hash of
         # the password concatenated to the challenge
-        correct_bytes = generate_hash(bytearray(password, "ascii") + challenge_bytes)
+        correct_bytes = generate_hash(bytearray(password, "ascii")
+                                      + challenge_bytes)
         if response_bytes[:3] == correct_bytes[:3]: # check only first 3 bytes
             print("\nAuthentication successful.")
         else:
