@@ -1,2 +1,2 @@
 # challenge-response-example
-A super simple example of challenge-response authentication.
+A super simple demonstration of challenge-response authentication.
