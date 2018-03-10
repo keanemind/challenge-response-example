@@ -278,25 +278,52 @@ def bytes_to_words(hex_bytes: bytearray):
 if __name__ == "__main__":
     choice = ""
     while choice != "1" and choice != "2":
-        print("\nI am the...\n"
-              "[1] Authenticator\n"
-              "[2] Authenticatee")
+        print("\nI am the..."
+              "\n[1] Authenticator"
+              "\n[2] Authenticatee")
         choice = input()
 
     if choice == "1":
-        choice = ""
-        while choice != "1" and choice != "2":
-            print("\nAuthenticator Mode\n"
-                  "[1] Generate a password for me\n"
-                  "[2] My partner and I already have a shared password")
-            choice = input()
+        print("\nAuthenticator Mode"
+              "\nYou and your partner need to already have "
+              "a shared secret password.")
 
-        if choice == "1":
-            print("\nSecurely share this password with your partner:")
-            password = secrets.token_hex(2) # a hex string, 2 bytes (4 hex chars)
-            split = [password[i:i+2] for i in range(0, len(password), 2)] # split into bytes
-            print(" ".join(bytes_to_words(split)) + "\n")
-
-        elif choice == "2":
+        password = ""
+        while not password:
             print("\nWhat is the shared password?")
             password = input()
+
+        print("\nShare this challenge with your partner:")
+        challenge = secrets.token_hex(2) # a hex string, 2 bytes (4 hex chars)
+        # convert each pair of hex characters to an int and store in list
+        split = [int(challenge[i:i+2], 16) for i in range(0, len(challenge), 2)]
+        challenge_bytes = bytearray(split)
+        print(" ".join(bytes_to_words(challenge_bytes)))
+
+        # Get response as PGP words, convert words to bytearray,
+        # and make user try again if words aren't in PGP wordlist
+        found = False
+        while not found:
+            response_bytes = bytearray()
+            print("\nWhat is the authenticatee's response?")
+            response = input().split(" ")
+            if len(response) >= 3: # response must be at least 3 bytes 
+                for word in response:
+                    # Check if word is in PGP_WORDLIST
+                    found = False
+                    for index, pgp_word_pair in enumerate(PGP_WORDLIST):
+                        for pgp_word in pgp_word_pair:
+                            if word.lower() == pgp_word.lower():
+                                found = True
+                                response_bytes.append(index) # add word's value to bytearray
+                    # If it isn't, stop checking altogether and get a new response
+                    if found is False:
+                        break
+
+        # Calculate correct answer by calculating hash of
+        # the password concatenated to the challenge
+        correct_bytes = generate_hash(bytearray(password, "ascii") + challenge_bytes)
+        if response_bytes[:3] == correct_bytes[:3]: # check only first 3 bytes
+            print("\nAuthentication successful.")
+        else:
+            print("\nAuthentication rejected.")
