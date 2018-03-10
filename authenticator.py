@@ -261,18 +261,17 @@ PGP_WORDLIST = [
     ["Zulu", "Yucatan"]
 ]
 
-def bytes_to_words(hex_list: list):
+def bytes_to_words(hex_bytes: bytearray):
     """Return a list of strings, where each
     string is a word from the PGP word list.
     The argument should be a list of strings,
     where each string is two hex characters."""
     words = []
-    for i, hex_byte in enumerate(hex_list):
-        value = int(hex_byte, 16)
+    for i, value in enumerate(hex_bytes):
         if i % 2 == 0: # even byte
-            words.append(PGP_WORDLIST[value][0])
+            words.append(PGP_WORDLIST[value][0].lower())
         else: # odd byte
-            words.append(PGP_WORDLIST[value][1])
+            words.append(PGP_WORDLIST[value][1].lower())
 
     return words
 
