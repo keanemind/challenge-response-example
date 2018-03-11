@@ -4,7 +4,7 @@ from sha256 import generate_hash
 
 pgp_wordlist = []
 
-with open("pgp_wordlist.txt") as wordsfile:
+with open("pgp_wordlist") as wordsfile:
     for line in wordsfile:
         pgp_wordlist.append(line.split())
 
